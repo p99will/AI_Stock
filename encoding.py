@@ -3,6 +3,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 import tensorflow_datasets as tfds
 import os
+# @tf.autograph.experimental.do_not_convert
 
 DEBUG = True
 VERBOS = 0 # 0 = All, 1 = Info , 2 = Important only, 3 = Errors only.
@@ -28,7 +29,7 @@ class WordEncoder():
             tokenizer = tfds.features.text.Tokenizer()
             vocabulary_set = set()
             log("Tokenizing all labeled data",1)
-            for text_tensor, _ in all_labeled_data:
+            for text_tensor, _ in self.all_labeled_data:
                 some_tokens = tokenizer.tokenize(text_tensor.numpy())
                 vocabulary_set.update(some_tokens)
             vocab_size = len(vocabulary_set)
@@ -42,7 +43,7 @@ class WordEncoder():
             log("Unable to create WordEncoder",3)
 
     def testEncode(self,text=''):
-        if(text=''):
+        if(text == ''):
             log("No example text provided, Fetching one from data...",2)
             text = next(iter(self.all_labeled_data))[0].numpy()
         print("Given text: ")
@@ -51,13 +52,14 @@ class WordEncoder():
         print(self.encoder.encode(text))
 
     def __labeler(self,example, index):
+        print(example,index)
         return example, tf.cast(index, tf.int64)
 
     def encode(self,text_tensor, label):
         encoded_text = self.encoder.encode(text_tensor.numpy())
         return encoded_text, label
 
-    def __encode_map_fn(text, label):
+    def __encode_map_fn(self,text, label):
         encoded_text, label = tf.py_function(self.encode,
                                            inp=[text, label],
                                            Tout=(tf.int64, tf.int64))
@@ -92,8 +94,8 @@ class WordEncoder():
                 self.BUFFER_SIZE, reshuffle_each_iteration=False)
         return successful
 
-
-
+w1 = WordEncoder(['butler.txt'])
+w1.testEncode()
 
 class WordEmbeddingModel():
     model = None
@@ -120,4 +122,5 @@ class WordEmbeddingModel():
 
         return self.model
 
-    def train(self,)
+    def train(self):
+        pass
