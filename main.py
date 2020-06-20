@@ -5,6 +5,8 @@ import tensorflow as tf
 from tensorflow import feature_column
 from tensorflow.keras import layers
 from matplotlib import pyplot as plt
+import tensorflow_datasets as tfds
+tfds.disable_progress_bar()
 
 # NN Model
 class MyModel:
@@ -29,7 +31,7 @@ class MyModel:
               loss=tf.keras.losses.BinaryCrossentropy(),
               metrics=my_metrics)
 
-    def train(self, model, dataset, epochs, label_name)
+    def train(self, model, dataset, epochs, label_name,
                 batch_size=None, shuffle=True):
         features = training_data
         label = training_labels
@@ -43,6 +45,17 @@ class MyModel:
 
     def predict(self,test_data):
         return self.model.predict(test_data)
+
+    def plot_curve(self, epochs, hist, list_of_metrics):
+        plt.figure()
+        plt.xlabel("Epoch")
+        plt.ylabel("Value")
+
+        for m in list_of_metrics:
+            x = hist[m]
+        plt.plot(epochs[1:], x[1:], label=m)
+
+        plt.legend()
 
 
 
