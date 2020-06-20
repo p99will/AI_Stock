@@ -6,6 +6,7 @@ from tensorflow import feature_column
 from tensorflow.keras import layers
 from matplotlib import pyplot as plt
 
+# NN Model
 class MyModel:
     model = tf.keras.models.Sequential()
     hastrained = False
@@ -42,3 +43,8 @@ class MyModel:
 
     def predict(self,test_data):
         return self.model.predict(test_data)
+
+
+
+class NewsGetter():
+    pass
