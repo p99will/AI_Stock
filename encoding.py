@@ -18,19 +18,28 @@ class WordEncoder():
     vocabulary_set = None
     encoder = None
 
-    def __init__(self,all_labeled_data):
-        log("Initing Tokenizer", 0)
-        tokenizer = tfds.features.text.Tokenizer()
-        vocabulary_set = set()
-        log("Tokenizing all labeled data",1)
-        for text_tensor, _ in all_labeled_data:
-            some_tokens = tokenizer.tokenize(text_tensor.numpy())
-            vocabulary_set.update(some_tokens)
-        vocab_size = len(vocabulary_set)
-        log("Vocab size: " + str(vocab_size),1)
-        self.encoder = tfds.features.text.TokenTextEncoder(vocabulary_set)
-        self.vocab_size = vocab_size
-        self.vocabulary_set = vocabulary_set
+    BUFFER_SIZE = 50000
+    BATCH_SIZE = 64
+    TAKE_SIZE = 5000
+
+    def __init__(self,filenames):
+        if(self.__readText(filenames)):
+            log("Initing Tokenizer", 0)
+            tokenizer = tfds.features.text.Tokenizer()
+            vocabulary_set = set()
+            log("Tokenizing all labeled data",1)
+            for text_tensor, _ in all_labeled_data:
+                some_tokens = tokenizer.tokenize(text_tensor.numpy())
+                vocabulary_set.update(some_tokens)
+            vocab_size = len(vocabulary_set)
+            log("Vocab size: " + str(vocab_size),1)
+            self.encoder = tfds.features.text.TokenTextEncoder(vocabulary_set)
+            self.vocab_size = vocab_size
+            self.vocabulary_set = vocabulary_set
+            log("Mapping data to encoding",1)
+            self.all_encoded_data = self.all_labeled_data.map(self.__encode_map_fn)
+        else:
+            log("Unable to create WordEncoder",3)
 
     def testEncode(self,text=''):
         if(text=''):
@@ -48,7 +57,15 @@ class WordEncoder():
         encoded_text = self.encoder.encode(text_tensor.numpy())
         return encoded_text, label
 
-    def readText(self,FILE_NAMES):
+    def __encode_map_fn(text, label):
+        encoded_text, label = tf.py_function(self.encode,
+                                           inp=[text, label],
+                                           Tout=(tf.int64, tf.int64))
+        encoded_text.set_shape([None])
+        label.set_shape([])
+        return encoded_text, label
+
+    def __readText(self,FILE_NAMES):
         successful = False
         labeled_data_sets = []
         try:
@@ -64,9 +81,6 @@ class WordEncoder():
             log(e,3)
         else:
             successful = True
-            BUFFER_SIZE = 50000
-            BATCH_SIZE = 64
-            TAKE_SIZE = 5000
 
             log("Combinding all files into one",1)
             all_labeled_data = labeled_data_sets[0]
@@ -75,7 +89,7 @@ class WordEncoder():
 
             log("Shuffeling dataset",1)
             self.all_labeled_data = all_labeled_data.shuffle(
-                BUFFER_SIZE, reshuffle_each_iteration=False)
+                self.BUFFER_SIZE, reshuffle_each_iteration=False)
         return successful
 
 
