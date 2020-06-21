@@ -1,4 +1,4 @@
-import requests, os, json, colorama
+import requests, os, json, platform, colorama
 import requests.exceptions
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
@@ -8,9 +8,14 @@ GREEN = colorama.Fore.GREEN
 GRAY = colorama.Fore.LIGHTBLACK_EX
 RESET = colorama.Fore.RESET
 
+plat = platform.system()
 cwd = os.getcwd()
 print(f'{GRAY}[*] Current working directory identified as {cwd}{RESET}')
-path = cwd + '/articles'
+path = ''
+if plat == 'Windows':
+    path = cwd + '\\articles'
+else:
+    path = cwd + '/articles'
 if os.path.isdir(path):
     print(f'{GRAY}[*] Created folder \"articles\" at {path}{RESET}')
 else:
