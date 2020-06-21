@@ -1,13 +1,21 @@
-import requests, os, json
+import requests, os, json, colorama
 import requests.exceptions
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
-import colorama
 
 colorama.init()
 GREEN = colorama.Fore.GREEN
 GRAY = colorama.Fore.LIGHTBLACK_EX
 RESET = colorama.Fore.RESET
+
+cwd = os.getcwd()
+print(f'{GRAY}[*] Current working directory identified as {cwd}{RESET}')
+path = cwd + '/articles'
+if os.path.isdir(path):
+    print(f'{GRAY}[*] Created folder \"articles\" at {path}{RESET}')
+else:
+    os.mkdir(path)
+    print(f'{GRAY}[*] Created folder \"articles\" at {path}{RESET}')
 
 internal_urls = set()
 external_urls = set()
@@ -18,7 +26,7 @@ output = ''
 
 filewrite = ''
 
-LINKCACHEFILE = 'links.txt'
+LINKCACHEFILE = 'chache'
 
 def appendFile(filename,data):
     f=open(filename,'a')
