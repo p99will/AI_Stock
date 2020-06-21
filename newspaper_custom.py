@@ -25,8 +25,7 @@ def appendFile(filename,data):
     f.write(data + '\n')
     f.close()
 
-def writeFile(filename,data):
-    print("File name: " + filename)
+def writeFile(filename, data):
     f=open(filename,'w')
     f.write(data)
     f.close()
@@ -81,7 +80,7 @@ def get_all_website_links(url):
     return urls
 
 SUBFOLDER = "articles"
-def writeJson(filename,data):
+def writeJson(filename, data):
     data = json.dumps(data, indent=4)
     writeFile(SUBFOLDER + '/' + filename + '.json', data)
 
@@ -107,7 +106,7 @@ if __name__ == "__main__":
     if(allow_cache):
         urls = checkCache()
         if(urls == ''):
-            print("Crawling")
+            print("[*] Crawling")
             crawl(url, max_urls=int(30))
             makeCahce(internal_urls)
         else:
@@ -150,7 +149,7 @@ if __name__ == "__main__":
                 	if t.parent.name not in blacklist:
                 		output += "{} ".format(t).strip()
 
-                print(f"{GREEN}[*] Writing page {site} contents to file: {(urlparse(url).netloc).strip()}_content.txt{RESET}")
+                print(f"{GREEN}[*] Writing page {site} contents to file: {new_title}.json")
 
                 output = ''.join((c for c in str(output) if ord(c) < 128)) # Removes unicode
                 toAppend = { 'text': output, 'date' : articleDate} # Adds date
@@ -161,7 +160,7 @@ if __name__ == "__main__":
             else:
                 continue
         else:
-            print("No title found")
+            print(f"{GRAY}[!] No title found, skipping {site}{RESET}")
 
     # with open(f"{(urlparse(url).netloc).strip()}_content.txt", "w",encoding="UTF-8") as f:
     #     print(filewrite, file=f)
