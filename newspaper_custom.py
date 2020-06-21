@@ -7,7 +7,7 @@ import colorama
 colorama.init()
 GREEN = colorama.Fore.GREEN
 GRAY = colorama.Fore.LIGHTBLACK_EX
-RED = colorama.Fore.RED
+ORANGE = colorama.Fore.ORANGE
 RESET = colorama.Fore.RESET
 
 internal_urls = set()
@@ -75,7 +75,11 @@ if __name__ == "__main__":
             res = requests.get(site)
         except Exception as e:
             print(e)
-        soup = BeautifulSoup(res.content, 'html.parser').find_all(text=True)
+
+        raw_htmlBS = BeautifulSoup.BeautifulSoup(res.content)
+
+        divBS = raw_htmlBS.find("div", {"id": "mntl-sc-page_1-0"})
+        soup = BeautifulSoup(divBS, 'html.parser').find_all(text=True)
 
         blacklist = [
         	'[document]',
@@ -92,9 +96,18 @@ if __name__ == "__main__":
         	if t.parent.name not in blacklist:
         		output += "{} ".format(t).strip()
 
-        print(f"{RED}Writing page {site} contents to file: {(urlparse(url).netloc).strip()}_content.txt{RESET}")
+        print(f"{ORANGE}[*] Writing page {site} contents to file: {(urlparse(url).netloc).strip()}_content.txt{RESET}")
+
+
+        print(output)
+
+        exit()
 
         filewrite += output + '\n'
 
-    with open(f"{(urlparse(url).netloc).strip()}_content.txt", "w") as f:
+    print(filewrite)
+
+"""
+    with open(f"{(urlparse(url).netloc).strip()}_content.txt", "w",encoding="UTF-8") as f:
         print(filewrite, file=f)
+"""
