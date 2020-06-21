@@ -52,7 +52,6 @@ class WordEncoder():
         print(self.encoder.encode(text))
 
     def __labeler(self,example, index):
-        print(example,index)
         return example, tf.cast(index, tf.int64)
 
     def encode(self,text_tensor, label):
@@ -75,8 +74,10 @@ class WordEncoder():
             for i, file_name in enumerate(FILE_NAMES):
                 log("Reading file: " + file_name, 0)
                 lines_dataset = tf.data.TextLineDataset(os.path.join(file_name))
+
                 log("Labeling file: " + file_name, 0)
                 labeled_dataset = lines_dataset.map(lambda ex: self.__labeler(ex, i))
+                print(labeled_dataset.as_numpy_iterator())
                 labeled_data_sets.append(labeled_dataset)
         except Exception as e:
             log("Error while reading files: ",3)
