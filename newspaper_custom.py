@@ -1,4 +1,4 @@
-import requests, os
+import requests, os, json
 import requests.exceptions
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, urljoin
@@ -26,6 +26,7 @@ def appendFile(filename,data):
     f.close()
 
 def writeFile(filename,data):
+    print("File name: " + filename)
     f=open(filename,'w')
     f.write(data)
     f.close()
@@ -80,9 +81,9 @@ def get_all_website_links(url):
     return urls
 
 SUBFOLDER = "articles"
-def writeJson(data,filename):
-    data = json.dumps(data)
-    writeFile(data, SUBFOLDER + '/' + filename + '.json')
+def writeJson(filename,data):
+    data = json.dumps(data, indent=4)
+    writeFile(SUBFOLDER + '/' + filename + '.json', data)
 
 def crawl(url, max_urls=50):
     global total_urls_visited
@@ -122,41 +123,45 @@ if __name__ == "__main__":
         divBS = raw_htmlBS.find(id="mntl-sc-page_1-0")
         articleDate = raw_htmlBS.find("meta", attrs={'name':'sailthru.date'})
         title = raw_htmlBS.find('title')
-        new_title = ''
-        for char in title:
-            if not char.isalnum() or char == ' ':
-                new_title += char
-        if(divBS == None or articleDate == None):
-            print(f"{GRAY}[!] No news found at: {site}{RESET}")
-        elif divBS != None:
-            articleDate = articleDate["content"]
-            soup = divBS.find_all(text=True)
+        if(title):
+            title = title.string
+            new_title = ''
+            for char in title:
+                if char.isalnum() or char == ' ':
+                    new_title += char
+            if(divBS == None or articleDate == None):
+                print(f"{GRAY}[!] No news found at: {site}{RESET}")
+            elif divBS != None:
+                articleDate = articleDate["content"]
+                soup = divBS.find_all(text=True)
 
-            blacklist = [
-            	'[document]',
-            	'noscript',
-            	'header',
-            	'html',
-            	'meta',
-            	'head',
-            	'input',
-            	'script',
-            ]
+                blacklist = [
+                	'[document]',
+                	'noscript',
+                	'header',
+                	'html',
+                	'meta',
+                	'head',
+                	'input',
+                	'script',
+                ]
 
-            for t in soup:
-            	if t.parent.name not in blacklist:
-            		output += "{} ".format(t).strip()
+                for t in soup:
+                	if t.parent.name not in blacklist:
+                		output += "{} ".format(t).strip()
 
-            print(f"{GREEN}[*] Writing page {site} contents to file: {(urlparse(url).netloc).strip()}_content.txt{RESET}")
+                print(f"{GREEN}[*] Writing page {site} contents to file: {(urlparse(url).netloc).strip()}_content.txt{RESET}")
 
-            output = ''.join((c for c in str(output) if ord(c) < 128)) # Removes unicode
-            toAppend = { 'text': output, 'date' : articleDate} # Adds date
-            # print(toAppend)
-            writeJson(toAppend,new_title)
-            # filewrite.append(toAppend)
-            # filewrite += output + '\n'
+                output = ''.join((c for c in str(output) if ord(c) < 128)) # Removes unicode
+                toAppend = { 'text': output, 'date' : articleDate} # Adds date
+                # print(toAppend)
+                writeJson(new_title,toAppend)
+                # filewrite.append(toAppend)
+                # filewrite += output + '\n'
+            else:
+                continue
         else:
-            continue
+            print("No title found")
 
     # with open(f"{(urlparse(url).netloc).strip()}_content.txt", "w",encoding="UTF-8") as f:
     #     print(filewrite, file=f)
