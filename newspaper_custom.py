@@ -132,8 +132,8 @@ if __name__ == "__main__":
             print(e)
 
         raw_htmlBS = BeautifulSoup(res.content, 'html.parser') # Keep <div id="xxxx"> YES
-        divBS = raw_htmlBS.find(id="mntl-sc-page_1-0")
-        articleDate = raw_htmlBS.find("meta", attrs={'name':'sailthru.date'})
+        divBS = raw_htmlBS.find("div",attrs={'class':"content__article-body from-content-api js-article__body"})
+        articleDate = raw_htmlBS.find("time", attrs={'class':'content__dateline-wpd js-wpd'})
         title = raw_htmlBS.find('title')
         if(title):
             title = title.string
@@ -144,7 +144,8 @@ if __name__ == "__main__":
             if(divBS == None or articleDate == None):
                 print(f"{GRAY}[!] No news found at: {site}{RESET}")
             elif divBS != None:
-                articleDate = articleDate["content"]
+                articleDate = articleDate.find_all(text=True)[0]
+                print(articleDate)
                 soup = divBS.find_all(text=True)
 
                 blacklist = [
